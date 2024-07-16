@@ -4,42 +4,52 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laratrust\Contracts\LaratrustUser;
+use Laratrust\Traits\HasRolesAndPermissions;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements LaratrustUser
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable,SoftDeletes,HasRolesAndPermissions;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    const EXPERT_ROLE = "expert";
+    const CUSTOMER_ROLE = "customer";
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    protected $guarded = [];
+
+    protected $dates = ['otp_last_sent_at'];
+
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verified_at',
+        'deleted_at',
+        'created_at',
+        'updated_at',
+        'otp',
+        'otp_last_sent_at',
+        'otp_resend_count',
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    public function expert(): HasOne
+    {
+        return $this->hasOne(Expert::class);
+    }
 }
