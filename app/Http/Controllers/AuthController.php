@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -31,7 +32,7 @@ class AuthController extends Controller
         $this->roleService = $roleService;
 
         // Applying middleware to specific methods
-        $this->middleware(['auth:sanctum', 'abilities:user,access'])->only(['resetPassword','logout']);
+        $this->middleware(['auth:sanctum', 'abilities:user,access'])->only(['resetPassword','logout','addFollowUser']);
         $this->middleware(['auth:sanctum', 'ability:user,refresh'])->only('refreshToken');
     }
     // Method for registering a new user
@@ -185,6 +186,32 @@ class AuthController extends Controller
     {
         // Delete the current access token of the user
         Auth::user()->currentAccessToken()->delete();
+        return $this->successResponse();
+    }
+    public function addFollowUser(Request $request): JsonResponse
+    {
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'user_id' => ['required', 'exists:users,id']
+        ]);
+        if ($validator->fails()) {
+            return $this->failedResponse($validator->errors()->first());
+        }
+        //The id user being followed
+        $userId = $request->user_id;
+        //The id authenticated user who is following
+        $followerId = Auth::user()->id;
+        //Verify that the user is not following himself
+        if ($userId == $followerId) {
+            return $this->failedResponse('You cannot follow yourself.');
+        }
+        //Follow relationship created
+       DB::table('followers')->insert([
+            'user_id'=>$userId,
+            'follower_id'=>Auth::user()->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         return $this->successResponse();
     }
 

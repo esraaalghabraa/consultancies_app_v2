@@ -11,4 +11,5 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('reset_password', 'resetPassword');
     Route::post('refresh_token', 'refreshToken');
     Route::get('logout', 'logout');
+    Route::post('add_follow_user', 'addFollowUser');
 });
