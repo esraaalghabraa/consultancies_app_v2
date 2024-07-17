@@ -19,6 +19,7 @@ class User extends Authenticatable implements LaratrustUser
 
     const EXPERT_ROLE = "expert";
     const CUSTOMER_ROLE = "customer";
+    const USER_GUARD = "user";
 
     protected $guarded = [];
 

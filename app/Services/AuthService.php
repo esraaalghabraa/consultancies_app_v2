@@ -5,10 +5,21 @@ namespace App\Services;
 use App\Exceptions\AuthenticationException;
 use App\Models\Expert;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
+    protected $guard;
+    protected $model;
+
+    public function __construct(string $guard, string $model)
+    {
+        $this->guard = $guard;
+        $this->model = $model;
+    }
+
     public function register(array $data): User
     {
         $user = User::create([
@@ -25,20 +36,20 @@ class AuthService
         return $user;
     }
 
-    public function login(array $data)
+    public function login(array $data): Model
     {
-        if (!auth()->validate($data)) {
+        if (!Auth::guard($this->guard)->validate($data)) {
             throw new AuthenticationException('The provided credentials are incorrect.');
         }
 
-        $user = User::where('email', $data['email'])->first();
+        $user = $this->model::where('email', $data['email'])->first();
         if (is_null($user->email_verified_at)) {
             throw new AuthenticationException('The provided credentials are incorrect.');
         }
         return $user;
     }
 
-    public function resetPassword($user, string $password): void
+    public function resetPassword(Model $user, string $password): void
     {
         $user->update([
             'password' => Hash::make($password)

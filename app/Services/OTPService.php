@@ -6,6 +6,7 @@ use App\Exceptions\EmailVerificationException;
 use App\Exceptions\OTPException;
 use App\Mail\EmailVerification;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -15,12 +16,12 @@ class OTPService
     /**
      * Send (OTP) to the user's email.
      *
-     * @param User $user
+     * @param Model $user
      * @return bool
      * @throws OTPException
      * @throws EmailVerificationException
      */
-    public function sendCode(User $user)
+    public function sendCode(Model $user)
     {
         // Get the current time
         $currentTime = now();
@@ -56,10 +57,10 @@ class OTPService
     /**
      * Calculate the next allowed time to request an OTP based on the resend count.
      *
-     * @param User $user
+     * @param Model $user
      * @return Carbon|null
      */
-    private function calculateNextAllowedTime(User $user): ?Carbon
+    private function calculateNextAllowedTime(Model $user): ?Carbon
     {
         // Get the number of times the user has requested an OTP
         $resendCount = $user->otp_resend_count;
@@ -86,12 +87,12 @@ class OTPService
     /**
      * Verify the provided OTP code for the user.
      *
-     * @param User $user
+     * @param Model $user
      * @param int $otp
      * @return bool
      * @throws OTPException
      */
-    public function verifyCode(User $user, int $otp): bool
+    public function verifyCode(Model $user, int $otp): bool
     {
         // Check if the provided OTP matches the user's OTP and if it's still valid
         if ($user->otp !== $otp || $user->otp_last_sent_at < now()->subMinutes(15)) {

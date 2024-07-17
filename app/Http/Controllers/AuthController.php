@@ -7,7 +7,9 @@ use App\Exceptions\EmailVerificationException;
 use App\Exceptions\OTPException;
 use App\Models\User;
 use App\Services\AuthService;
+use App\Services\AuthServiceFactory;
 use App\Services\OTPService;
+use App\Services\OTPServiceFactory;
 use App\Services\RoleService;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -21,14 +23,14 @@ class AuthController extends Controller
 {
     use ResponseTrait;
 
-    protected AuthService $authService;
-    protected OTPService $otpService;
+    protected $authService;
+    protected $otpService;
     protected RoleService $roleService;
 
-    public function __construct(AuthService $authService, OTPService $otpService, RoleService $roleService)
+    public function __construct(RoleService $roleService)
     {
-        $this->authService = $authService;
-        $this->otpService = $otpService;
+        $this->authService = AuthServiceFactory::create(User::USER_GUARD, User::class);
+        $this->otpService = OTPServiceFactory::create();
         $this->roleService = $roleService;
 
         // Applying middleware to specific methods
@@ -162,7 +164,6 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return $this->failedResponse($validator->errors()->first());
         }
-
         // Reset the user's password
         $this->authService->resetPassword(Auth::user(), $request->password);
         return $this->successResponse();

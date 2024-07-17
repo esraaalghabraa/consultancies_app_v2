@@ -51,6 +51,11 @@
         .verification-code{
             font-weight: bold;
             margin: 20px 0;
+            background-color: #333;
+            border-radius: 5px;
+            display: inline-block;
+            font-size: 24px;
+            padding: 10px 20px;
         }
         .privecy{
             padding: 20px 0;
