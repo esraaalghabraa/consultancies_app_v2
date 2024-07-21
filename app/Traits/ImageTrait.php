@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 trait ImageTrait
 {
@@ -18,10 +19,12 @@ trait ImageTrait
         // Generate a unique filename for the image using a unique ID and the original file extension
         $fileName = uniqid() . '.' . $image->getClientOriginalExtension();
         // Define the path where the image will be stored
-        $path = 'images/' . $fileName;
+        $path = 'assets/images/' . $fileName;
         // Move the uploaded image to the public images directory
-        $image->move(public_path('images'), $fileName);
-        return $path;
+        $image->move(public_path('assets/images/'), $fileName);
+        $path = explode('/', $path);
+        return $path[2];
+
     }
 
     /**
@@ -33,6 +36,10 @@ trait ImageTrait
     private function getImage($image)
     {
         // Return the URL of the image if the image name is provided, otherwise return an empty string
-        return $image ? asset('assets/images/' . $image) : '';
+        return $image ? asset('assets/images/'.$image) : '';
+    }
+
+    public function deleteImageH($image){
+        Storage::disk('images')->delete($image);
     }
 }

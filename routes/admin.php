@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\SubCategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,7 +15,20 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('test',function (){
-    return 'dncbsmnbc';
+
+Route::prefix('category')->controller(CategoryController::class)->group(function (){
+    Route::post('create','create');
+    Route::post('update','update');
+    Route::post('change_active','changeActive');
+    Route::delete('delete','delete');
+    Route::get('index','index');
+});
+
+Route::prefix('sub_category')->controller(SubCategoryController::class)->group(function (){
+    Route::post('create','create');
+    Route::post('update','update');
+    Route::post('change_active','changeActive');
+    Route::delete('delete','delete');
+    Route::get('index','index');
 });
 require __DIR__.'/auth-admin.php';
